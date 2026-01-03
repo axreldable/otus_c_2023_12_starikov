@@ -4,3 +4,6 @@
 *.out
 
 cmake-build-debug
+
+main
+main.dS*
