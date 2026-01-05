@@ -6,7 +6,3 @@ run:
 
 verify:
 	comm -23 utf-8.txt expected_result.txt
-
-test:
-	gcc -Wall -Wextra -Wpedantic -std=c11 main.c
-	./a.out "input.txt" "test" "output.txt"

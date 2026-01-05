@@ -52,10 +52,10 @@ static const char* iso8859_5_to_utf8[128] = {
  *
  * @param byte - input byte
  * @param from - encoding name, e.g. ('cp1251', 'iso-8859-5', 'koi8-r')
- * @param out - output buffer (must have at least 4 bytes)
+ * @param out - output buffer for raw UTF-8 bytes (must have space for at least 4 bytes; no null terminator is written)
  * @return number of bytes written to output
  */
-int convert(unsigned char byte, const char *from, unsigned char *out) {
+int encode_to_utf8(unsigned char byte, const char *from, unsigned char *out) {
     const char *utf8_char;
 
     // ASCII characters are the same in all encodings (first 127 characters)
@@ -99,16 +99,20 @@ int main(int argc, char *argv[]) {
     char *out_file_p = argv[3];
 
     FILE *in_file = fopen(in_file_p, "rb");
-    FILE *out_file = fopen(out_file_p, "wb");
-    if (!in_file || !out_file) {
-        printf("Can't open input file %s\n", in_file_p);
+    if (!in_file) {
+        fprintf(stderr, "Can't open input file %s\n", in_file_p);
         return EXIT_FAILURE;
+    }
+    FILE *out_file = fopen(out_file_p, "wb");
+    if (!out_file) {
+        fprintf(stderr, "Can't open output file %s\n", out_file_p);
+        fclose(in_file);
     }
 
     int byte;
     unsigned char utf8_buf[4];
     while ((byte = fgetc(in_file)) != EOF) {
-        int len = convert((unsigned char)byte, encoding_p, utf8_buf);
+        int len = encode_to_utf8((unsigned char)byte, encoding_p, utf8_buf);
         fwrite(utf8_buf, 1, len, out_file);
     }
 
