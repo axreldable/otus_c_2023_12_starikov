@@ -2,120 +2,88 @@
 #include <stdlib.h>
 #include <string.h>
 
-// KOI8-R to Unicode mapping for characters 0x80-0xFF
-static const unsigned short koi8r_to_unicode[128] = {
-    0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
-    0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
-    0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248,
-    0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7,
-    0x2550, 0x2551, 0x2552, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556,
-    0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E,
-    0x255F, 0x2560, 0x2561, 0x0401, 0x2562, 0x2563, 0x2564, 0x2565,
-    0x2566, 0x2567, 0x2568, 0x2569, 0x256A, 0x256B, 0x256C, 0x00A9,
-    0x044E, 0x0430, 0x0431, 0x0446, 0x0434, 0x0435, 0x0444, 0x0433,
-    0x0445, 0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E,
-    0x043F, 0x044F, 0x0440, 0x0441, 0x0442, 0x0443, 0x0436, 0x0432,
-    0x044C, 0x044B, 0x0437, 0x0448, 0x044D, 0x0449, 0x0447, 0x044A,
-    0x042E, 0x0410, 0x0411, 0x0426, 0x0414, 0x0415, 0x0424, 0x0413,
-    0x0425, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E,
-    0x041F, 0x042F, 0x0420, 0x0421, 0x0422, 0x0423, 0x0416, 0x0412,
-    0x042C, 0x042B, 0x0417, 0x0428, 0x042D, 0x0429, 0x0427, 0x042A
+// KOI8-R to UTF-8 mapping for characters 0x80-0xFF
+static const char* koi8r_to_utf8[128] = {
+    "─", "│", "┌", "┐", "└", "┘", "├", "┤", "┬", "┴", "┼", "▀", "▄", "█", "▌", "▐",
+    "░", "▒", "▓", "⌠", "■", "∙", "√", "≈", "≤", "≥", " ", "⌡", "°", "²", "·", "÷",
+    "═", "║", "╒", "ё", "╓", "╔", "╕", "╖", "╗", "╘", "╙", "╚", "╛", "╜", "╝", "╞",
+    "╟", "╠", "╡", "Ё", "╢", "╣", "╤", "╥", "╦", "╧", "╨", "╩", "╪", "╫", "╬", "©",
+    "ю", "а", "б", "ц", "д", "е", "ф", "г", "х", "и", "й", "к", "л", "м", "н", "о",
+    "п", "я", "р", "с", "т", "у", "ж", "в", "ь", "ы", "з", "ш", "э", "щ", "ч", "ъ",
+    "Ю", "А", "Б", "Ц", "Д", "Е", "Ф", "Г", "Х", "И", "Й", "К", "Л", "М", "Н", "О",
+    "П", "Я", "Р", "С", "Т", "У", "Ж", "В", "Ь", "Ы", "З", "Ш", "Э", "Щ", "Ч", "Ъ"
 };
 
-// CP1251 to Unicode mapping for characters 0x80-0xFF
-static const unsigned short cp1251_to_unicode[128] = {
-    0x0402, 0x0403, 0x201A, 0x0453, 0x201E, 0x2026, 0x2020, 0x2021,
-    0x20AC, 0x2030, 0x0409, 0x2039, 0x040A, 0x040C, 0x040B, 0x040F,
-    0x0452, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
-    0x0098, 0x2122, 0x0459, 0x203A, 0x045A, 0x045C, 0x045B, 0x045F,
-    0x00A0, 0x040E, 0x045E, 0x0408, 0x00A4, 0x0490, 0x00A6, 0x00A7,
-    0x0401, 0x00A9, 0x0404, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x0407,
-    0x00B0, 0x00B1, 0x0406, 0x0456, 0x0491, 0x00B5, 0x00B6, 0x00B7,
-    0x0451, 0x2116, 0x0454, 0x00BB, 0x0458, 0x0405, 0x0455, 0x0457,
-    0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417,
-    0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
-    0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427,
-    0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
-    0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437,
-    0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
-    0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447,
-    0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
+// CP1251 to UTF-8 mapping for characters 0x80-0xFF
+static const char* cp1251_to_utf8[128] = {
+    "Ђ", "Ѓ", "‚", "ѓ", "„", "…", "†", "‡", "€", "‰", "Љ", "‹", "Њ", "Ќ", "Ћ", "Џ",
+    "ђ", "'", "'", "“", "”", "•", "–", "—", "˜", "™", "љ", "›", "њ", "ќ", "ћ", "џ",
+    " ", "Ў", "ў", "Ј", "¤", "Ґ", "¦", "§", "Ё", "©", "Є", "«", "¬", "­", "®", "Ї",
+    "°", "±", "І", "і", "ґ", "µ", "¶", "·", "ё", "№", "є", "»", "ј", "Ѕ", "µ", "ї",
+    "А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П",
+    "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я",
+    "а", "б", "в", "г", "д", "е", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п",
+    "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я"
 };
 
-// ISO-8859-5 to Unicode mapping for characters 0x80-0xFF
-static const unsigned short iso8859_5_to_unicode[128] = {
-    0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
-    0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
-    0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
-    0x0098, 0x0099, 0x009A, 0x009B, 0x009C, 0x009D, 0x009E, 0x009F,
-    0x00A0, 0x0401, 0x0402, 0x0403, 0x0404, 0x0405, 0x0406, 0x0407,
-    0x0408, 0x0409, 0x040A, 0x040B, 0x040C, 0x00AD, 0x040E, 0x040F,
-    0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417,
-    0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
-    0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427,
-    0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
-    0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437,
-    0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
-    0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447,
-    0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F,
-    0x2116, 0x0451, 0x0452, 0x0453, 0x0454, 0x0455, 0x0456, 0x0457,
-    0x0458, 0x0459, 0x045A, 0x045B, 0x045C, 0x00A7, 0x045E, 0x045F
+// ISO-8859-5 to UTF-8 mapping for characters 0x80-0xFF
+static const char* iso8859_5_to_utf8[128] = {
+    "\x80", "\x81", "\x82", "\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x8A", "\x8B", "\x8C", "\x8D", "\x8E", "\x8F",
+    "\x90", "\x91", "\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99", "\x9A", "\x9B", "\x9C", "\x9D", "\x9E", "\x9F",
+    " ", "Ё", "Ђ", "Ѓ", "Є", "Ѕ", "І", "Ї", "Ј", "Љ", "Њ", "Ћ", "Ќ", "­", "Ў", "Џ",
+    "А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П",
+    "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я",
+    "а", "б", "в", "г", "д", "е", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п",
+    "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
+    "№", "ё", "ђ", "ѓ", "є", "ѕ", "і", "ї", "ј", "љ", "њ", "ћ", "ќ", "§", "ў", "џ"
 };
-
-/**
- * Encodes a Unicode code point to UTF-8.
- *
- * @param unicode - Unicode code point
- * @param out - output buffer (must have at least 4 bytes)
- * @return number of bytes written
- */
-int unicode_to_utf8(unsigned short unicode, unsigned char *out) {
-    if (unicode < 0x80) {
-        out[0] = (unsigned char)unicode;
-        return 1;
-    } else if (unicode < 0x800) {
-        out[0] = 0xC0 | (unicode >> 6);
-        out[1] = 0x80 | (unicode & 0x3F);
-        return 2;
-    } else {
-        out[0] = 0xE0 | (unicode >> 12);
-        out[1] = 0x80 | ((unicode >> 6) & 0x3F);
-        out[2] = 0x80 | (unicode & 0x3F);
-        return 3;
-    }
-}
 
 /**
  * Converts a single byte encoding to UTF-8.
+ *
+ * Notes:
+ *  KOI8-R, CP1251, and ISO-8859-5 all use identical mappings for bytes 0-127 (0x00-0x7F)
+ *  They only differ in how they map bytes 128-255 (0x80-0xFF)
+ *  --
+ *  ASCII characters occupy the range 0-127 (0x00-0x7F)
+ *  ASCII is already valid UTF-8 for values < 128
  *
  * @param byte - input byte
  * @param from - encoding name, e.g. ('cp1251', 'iso-8859-5', 'koi8-r')
  * @param out - output buffer (must have at least 4 bytes)
  * @return number of bytes written to output
  */
-int convert(unsigned char byte, char *from, unsigned char *out) {
-    unsigned short unicode;
+int convert(unsigned char byte, const char *from, unsigned char *out) {
+    const char *utf8_char;
 
-    // ASCII characters are the same in all encodings
+    // ASCII characters are the same in all encodings (first 127 characters)
     if (byte < 0x80) {
         out[0] = byte;
         return 1;
     }
 
-    // Select encoding table
+    // Select encoding table and get UTF-8 string
+    int mapping_index = byte - 0x80;
     if (strcmp(from, "koi8-r") == 0) {
-        unicode = koi8r_to_unicode[byte - 0x80];
+        utf8_char = koi8r_to_utf8[mapping_index];
     } else if (strcmp(from, "cp1251") == 0) {
-        unicode = cp1251_to_unicode[byte - 0x80];
+        utf8_char = cp1251_to_utf8[mapping_index];
     } else if (strcmp(from, "iso-8859-5") == 0) {
-        unicode = iso8859_5_to_unicode[byte - 0x80];
+        utf8_char = iso8859_5_to_utf8[mapping_index];
     } else {
         // Unknown encoding, pass through
         out[0] = byte;
         return 1;
     }
 
-    return unicode_to_utf8(unicode, out);
+    // Copy UTF-8 bytes to output buffer
+    int len = 0;
+    while (utf8_char[len] != '\0') {
+        out[len] = (unsigned char)utf8_char[len];
+        len++;
+    }
+
+    return len;
 }
 
 
