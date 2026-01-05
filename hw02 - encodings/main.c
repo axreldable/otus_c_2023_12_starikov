@@ -107,6 +107,7 @@ int main(int argc, char *argv[]) {
     if (!out_file) {
         fprintf(stderr, "Can't open output file %s\n", out_file_p);
         fclose(in_file);
+        return EXIT_FAILURE;
     }
 
     int byte;
