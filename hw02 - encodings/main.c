@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ASCII_MAX 0x80
+
 // KOI8-R to UTF-8 mapping for characters 0x80-0xFF
 static const char* koi8r_to_utf8[128] = {
     "─", "│", "┌", "┐", "└", "┘", "├", "┤", "┬", "┴", "┼", "▀", "▄", "█", "▌", "▐",
@@ -57,13 +59,13 @@ int convert(unsigned char byte, const char *from, unsigned char *out) {
     const char *utf8_char;
 
     // ASCII characters are the same in all encodings (first 127 characters)
-    if (byte < 0x80) {
+    if (byte < ASCII_MAX) {
         out[0] = byte;
         return 1;
     }
 
     // Select encoding table and get UTF-8 string
-    int mapping_index = byte - 0x80;
+    int mapping_index = byte - ASCII_MAX;
     if (strcmp(from, "koi8-r") == 0) {
         utf8_char = koi8r_to_utf8[mapping_index];
     } else if (strcmp(from, "cp1251") == 0) {
@@ -92,22 +94,25 @@ int main(int argc, char *argv[]) {
         printf("Usage: %s <input_file> <encoding> <output_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
-    char *in_file = argv[1];
-    char *encoding = argv[2];
-    char *out_file = argv[3];
+    char *in_file_p = argv[1];
+    char *encoding_p = argv[2];
+    char *out_file_p = argv[3];
 
-    FILE *inFile = fopen(in_file, "rb");
-    FILE *outFile = fopen(out_file, "wb");
-    if (!inFile || !outFile) return EXIT_FAILURE;
+    FILE *in_file = fopen(in_file_p, "rb");
+    FILE *out_file = fopen(out_file_p, "wb");
+    if (!in_file || !out_file) {
+        printf("Can't open input file %s\n", in_file_p);
+        return EXIT_FAILURE;
+    }
 
     int byte;
     unsigned char utf8_buf[4];
-    while ((byte = fgetc(inFile)) != EOF) {
-        int len = convert((unsigned char)byte, encoding, utf8_buf);
-        fwrite(utf8_buf, 1, len, outFile);
+    while ((byte = fgetc(in_file)) != EOF) {
+        int len = convert((unsigned char)byte, encoding_p, utf8_buf);
+        fwrite(utf8_buf, 1, len, out_file);
     }
 
-    fclose(inFile);
-    fclose(outFile);
+    fclose(in_file);
+    fclose(out_file);
     return EXIT_SUCCESS;
 }
