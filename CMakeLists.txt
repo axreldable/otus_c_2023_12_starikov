@@ -4,6 +4,6 @@ project(otus_c_2023_12_starikov C)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(test main.c
-        "hw01 - rarjpeg/rarjpeg.c"
-        "hw01 - rarjpeg/rarjpeg.h"
+        "hw01_rarjpeg/rarjpeg.c"
+        "hw01_rarjpeg/rarjpeg.h"
 )
