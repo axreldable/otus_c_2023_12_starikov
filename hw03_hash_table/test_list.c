@@ -21,20 +21,26 @@ int test_list_delete(void) {
     list = add_first(list, 2);
     list = add_first(list, 1);
     list = add_last(list, 3);
+    list = add_last(list, 4);
 
+    ASSERT_EQ(4, size(list));
+    // display_list(list);
+
+    list = delete_node(list, 3);
     ASSERT_EQ(3, size(list));
+    // display_list(list);
 
-    list = delete_node(list, 2);
+    list = delete_node(list, 4);
     ASSERT_EQ(2, size(list));
+    // display_list(list);
 
     list = delete_node(list, 1);
     ASSERT_EQ(1, size(list));
+    // display_list(list);
 
-    list = delete_node(list, 3);
+    list = delete_node(list, 2);
     ASSERT_EQ(0, size(list));
-
-    list = delete_node(list, 3);
-    ASSERT_EQ(0, size(list));
+    // display_list(list);
 
     return 0;
 }

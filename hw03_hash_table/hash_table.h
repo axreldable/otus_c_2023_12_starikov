@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct {
     const char* key;
@@ -15,6 +16,13 @@ typedef struct {
 } hash_table;
 
 int search(hash_table* ht, const char *key);
+
+static ht_item* ht_new_item(const char* k, int v) {
+    ht_item* i = malloc(sizeof(ht_item));
+    i->key = strdup(k);
+    i->value = v;
+    return i;
+}
 
 int hash(const char* key) {
     int pos;
