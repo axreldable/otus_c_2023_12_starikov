@@ -10,14 +10,14 @@ struct NODE {
 
 struct NODE *add_first(struct NODE *list, int value);
 struct NODE *add_last(struct NODE *list, int value);
-struct NODE *find(const struct NODE *list, int value);
+struct NODE *find(struct NODE *list, int value);
 struct NODE *delete_node(struct NODE *list, int value);
-void display_list(const struct NODE *head);
-int size(const struct NODE *head);
+void display_list(struct NODE *head);
+int size(struct NODE *head);
 void free_list(struct NODE *list);
 
 
-inline struct NODE *create_node(int value) {
+struct NODE *create_node(int value) {
     struct NODE *node = calloc(1, sizeof(struct NODE));
     node->data = value;
     return node;
@@ -43,7 +43,7 @@ inline struct NODE *add_last(struct NODE *list, int value) {
     return list;
 }
 
-inline struct NODE *find(const struct NODE *list, int value) {
+inline struct NODE *find(struct NODE *list, int value) {
     struct NODE *ptr = list;
     while (ptr != NULL) {
         if (ptr->data == value) {
@@ -55,7 +55,15 @@ inline struct NODE *find(const struct NODE *list, int value) {
 }
 
 inline struct NODE *delete_node(struct NODE *list, int value) {
+    if (!list) {
+        return NULL;
+    }
+
     struct NODE *ptr = list;
+    if (ptr->data == value) {
+        return ptr->next;
+    }
+
     while (ptr->next != NULL) {
         if (ptr->next->data == value) {
             ptr->next = ptr->next->next;
@@ -66,7 +74,7 @@ inline struct NODE *delete_node(struct NODE *list, int value) {
     return list;
 }
 
-inline void display_list(const struct NODE *head) {
+inline void display_list(struct NODE *head) {
     struct NODE *ptr = head;
     printf("List: ");
     while (ptr != NULL) {
@@ -76,7 +84,7 @@ inline void display_list(const struct NODE *head) {
     printf("\n");
 }
 
-inline int size(const struct NODE *head) {
+inline int size(struct NODE *head) {
     struct NODE *ptr = head;
     int size = 0;
     while (ptr) {
