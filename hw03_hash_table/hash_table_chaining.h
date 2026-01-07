@@ -17,14 +17,14 @@ typedef struct {
 
 int search(hash_table* ht, const char *key);
 
-static ht_item* ht_new_item(const char* k, int v) {
+inline ht_item* ht_new_item(const char* k, int v) {
     ht_item* i = malloc(sizeof(ht_item));
     i->key = strdup(k);
     i->value = v;
     return i;
 }
 
-int hash(const char* key) {
+inline int hash(const char* key) {
     int pos;
     int first_letter = tolower(key[0]);
     if(first_letter >= 'a' && first_letter <= 'z')
