@@ -39,8 +39,7 @@ int test_list_delete(void) {
     return 0;
 }
 
-
-int main(int argc, char *argv[]) {
+void manual_tests(void) {
     struct NODE *list = NULL;
 
     display_list(list);
@@ -58,6 +57,11 @@ int main(int argc, char *argv[]) {
     display_list(list);
 
     free_list(list);
+}
+
+
+int main(int argc, char *argv[]) {
+    manual_tests();
 
     EXECUTE_TESTS(
         test_list,
