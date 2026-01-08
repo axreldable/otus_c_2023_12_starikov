@@ -66,11 +66,11 @@ void manual_tests(void) {
 }
 
 
-int main(int argc, char *argv[]) {
-    manual_tests();
-
-    EXECUTE_TESTS(
-        test_list,
-        test_list_delete
-    );
-}
+// int main(int argc, char *argv[]) {
+//     manual_tests();
+//
+//     EXECUTE_TESTS(
+//         test_list,
+//         test_list_delete
+//     );
+// }

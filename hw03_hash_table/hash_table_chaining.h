@@ -1,10 +1,16 @@
 #include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define INITIAL_SIZE 10
+#define HT_PRIME 151
+
+// https://www.youtube.com/watch?v=kJSkeSMWybY&t=407s
+// https://github.com/jamesroutley/write-a-hash-table
 typedef struct {
-    const char* key;
+    char* key;
     int value;
     struct ht_item* next;
 } ht_item;
@@ -15,7 +21,9 @@ typedef struct {
     ht_item** items;
 } hash_table;
 
-int search(hash_table* ht, const char *key);
+inline float load_factor(hash_table* ht) {
+    return (float) ht->count / ht->size;
+}
 
 inline ht_item* ht_new_item(const char* k, int v) {
     ht_item* i = malloc(sizeof(ht_item));
@@ -24,54 +32,63 @@ inline ht_item* ht_new_item(const char* k, int v) {
     return i;
 }
 
-inline int hash(const char* key) {
-    int pos;
-    int first_letter = tolower(key[0]);
-    if(first_letter >= 'a' && first_letter <= 'z')
-    {
-        pos = first_letter - 'a';
+inline hash_table* ht_new() {
+    hash_table* ht = malloc(sizeof(hash_table));
+
+    ht->size = INITIAL_SIZE;
+    ht->count = 0;
+    ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
+    return ht;
+}
+
+inline void ht_del_item(ht_item* i) {
+    free(i->key);
+    free(i);
+}
+
+
+inline void ht_del_hash_table(hash_table* ht) {
+    for (int i = 0; i < ht->size; i++) {
+        ht_item* item = ht->items[i];
+        if (item != NULL) {
+            ht_del_item(item);
+        }
     }
-    else
-    {
-        pos = 26;
+    free(ht->items);
+    free(ht);
+}
+
+inline  int ht_hash(const char* s, const int m) {
+    int a = HT_PRIME;
+    long hash = 0;
+    const int len_s = strlen(s);
+    for (int i = 0; i < len_s; i++) {
+        hash += (long)pow(a, len_s - (i+1)) * s[i];
+        hash = hash % m;
     }
-    return pos;
+    return (int)hash;
 }
 
-struct ht_item *add_last(struct ht_item* list, struct ht_item *newd)
-{
-    if (!list)
-        return newd;
+// todo: implement methods for channing hash_table
+// struct ht_item *add_last(struct ht_item* list, struct ht_item *newd)
+// {
+//     if (!list)
+//         return newd;
+//
+//     struct ht_item *result = list;
+//     while (result->next)
+//         result = result->next;
+//     result->next = newd;
+//     return list;
+// }
+//
+// void insert(struct hash_table* ht, const char *key, int value) {
+//     ht_item* item = ht_new_item(key, value);
+//     int pos = hash(key);
+//     add_last(&ht[pos], &item);
+// }
 
-    struct ht_item *result = list;
-    while (result->next)
-        result = result->next;
-    result->next = newd;
-    return list;
-}
+int search(hash_table* ht, const char *key);
 
-void insert(hash_table* ht, const char *key, int value) {
-    ht_item* item;
-    item = (ht_item *) malloc(sizeof(ht_item));
-    item->key = key;
-    item->value = value;
-
-    int pos = hash(key);
-    add_last(&ht[pos], &item);
-}
 void reseize(hash_table* ht);
 char** keys(hash_table* ht);
-
-int main(int argc, char *argv[]) {
-    hash_table ht;
-
-    insert(&ht, "key1", 1);
-    insert(&ht, "key2", 2);
-    insert(&ht, "key3", 3);
-
-    printf("%d\n", search(&ht, "key1"));
-    printf("%d\n", search(&ht, "key2"));
-    printf("%d\n", search(&ht, "key3"));
-
-    return EXIT_SUCCESS;
-}
