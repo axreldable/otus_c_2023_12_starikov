@@ -17,6 +17,13 @@ int test_ht(void) {
     ASSERT_EQ(11, search(ht, "key11"));
     ASSERT_EQ(13, search(ht, "key13"));
 
+    insert(ht, "key1", 2);
+    insert(ht, "key11", 3);
+    insert(ht, "key13", 4);
+    ASSERT_EQ(2, search(ht, "key1"));
+    ASSERT_EQ(3, search(ht, "key11"));
+    ASSERT_EQ(4, search(ht, "key13"));
+
     return 0;
 }
 
@@ -29,6 +36,7 @@ void manual_tests(void) {
         insert(ht, key, i);
         free(key);
     }
+    insert(ht, "key1", 2);
 
     display_ht(ht);
 

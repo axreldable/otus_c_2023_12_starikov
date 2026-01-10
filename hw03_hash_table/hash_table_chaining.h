@@ -80,9 +80,44 @@ static ht_item *add_last(ht_item *list, ht_item *newd) {
     return list;
 }
 
+static ht_item* _get_item(hash_table *ht, const char *key) {
+    int pos = ht_hash(key, ht->size);
+    ht_item *ptr = ht->items[pos];
+    while (ptr != NULL) {
+        if (strcmp(ptr->key, key) == 0) {
+            return ptr;
+        }
+        ptr = ptr->next;
+    }
+    return NULL;
+}
+
+static int search(hash_table *ht, const char *key) {
+    ht_item* item = _get_item(ht, key);
+    if (item == NULL) {
+        return -1;
+    }
+    return item->value;
+}
+
+void resize_up(hash_table *ht) {
+}
+
 
 static void insert(hash_table *ht, const char *key, int value) {
-    ht_item *item = ht_new_item(key, value);
+    const float load = load_factor(ht);
+    if (load > 0.7) {
+        resize_up(ht);
+    }
+
+    // if exists, update value
+    ht_item *item = _get_item(ht, key);
+    if (item != NULL) {
+        item->value = value;
+        return;
+    }
+
+    item = ht_new_item(key, value);
     int pos = ht_hash(key, ht->size);
     ht->items[pos] = add_last(ht->items[pos], item);
     ht->count++;
@@ -102,19 +137,5 @@ static void display_ht(hash_table *ht) {
         printf("\n");
     }
 }
-
-int search(hash_table *ht, const char *key) {
-    int pos = ht_hash(key, ht->size);
-    ht_item *ptr = ht->items[pos];
-    while (ptr != NULL) {
-        if (strcmp(ptr->key, key) == 0) {
-            return ptr->value;
-        }
-        ptr = ptr->next;
-    }
-    return -1;
-}
-
-void reseize(hash_table *ht);
 
 char **keys(hash_table *ht);
