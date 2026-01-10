@@ -80,7 +80,7 @@ static ht_item *add_last(ht_item *list, ht_item *newd) {
     return list;
 }
 
-static ht_item* _get_item(hash_table *ht, const char *key) {
+static ht_item *_get_item(hash_table *ht, const char *key) {
     int pos = ht_hash(key, ht->size);
     ht_item *ptr = ht->items[pos];
     while (ptr != NULL) {
@@ -93,7 +93,7 @@ static ht_item* _get_item(hash_table *ht, const char *key) {
 }
 
 static int search(hash_table *ht, const char *key) {
-    ht_item* item = _get_item(ht, key);
+    ht_item *item = _get_item(ht, key);
     if (item == NULL) {
         return -1;
     }
@@ -101,6 +101,7 @@ static int search(hash_table *ht, const char *key) {
 }
 
 void resize_up(hash_table *ht) {
+    // todo: implement
 }
 
 
