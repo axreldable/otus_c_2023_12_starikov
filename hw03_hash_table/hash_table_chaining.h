@@ -103,7 +103,17 @@ static void display_ht(hash_table *ht) {
     }
 }
 
-int search(hash_table *ht, const char *key);
+int search(hash_table *ht, const char *key) {
+    int pos = ht_hash(key, ht->size);
+    ht_item *ptr = ht->items[pos];
+    while (ptr != NULL) {
+        if (strcmp(ptr->key, key) == 0) {
+            return ptr->value;
+        }
+        ptr = ptr->next;
+    }
+    return -1;
+}
 
 void reseize(hash_table *ht);
 

@@ -14,15 +14,15 @@ void manual_tests(void) {
     for (int i = 0; i < 20; i++) {
         char *key = malloc(20);
         sprintf(key, "key%d", i);
-        insert(ht, key, 1);
+        insert(ht, key, i);
         free(key);
     }
-    //
-    // printf("%d\n", search(&ht, "key1"));
-    // printf("%d\n", search(&ht, "key2"));
-    // printf("%d\n", search(&ht, "key3"));
 
     display_ht(ht);
+
+    printf("%d\n", search(ht, "key1"));
+    printf("%d\n", search(ht, "key11"));
+    printf("%d\n", search(ht, "key13"));
 }
 
 
