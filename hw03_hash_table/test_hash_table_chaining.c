@@ -3,7 +3,19 @@
 #include "../simple_unit.h"
 
 
-int test_list(void) {
+int test_ht(void) {
+    hash_table* ht = ht_new();
+
+    for (int i = 0; i < 20; i++) {
+        char *key = malloc(20);
+        sprintf(key, "key%d", i);
+        insert(ht, key, i);
+        free(key);
+    }
+
+    ASSERT_EQ(1, search(ht, "key1"));
+    ASSERT_EQ(11, search(ht, "key11"));
+    ASSERT_EQ(13, search(ht, "key13"));
 
     return 0;
 }
@@ -30,6 +42,6 @@ int main(int argc, char *argv[]) {
     manual_tests();
 
     EXECUTE_TESTS(
-        test_list
+    test_ht
     );
 }
