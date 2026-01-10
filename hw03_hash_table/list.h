@@ -21,7 +21,6 @@ struct NODE *create_node(int value) {
     struct NODE *node = calloc(1, sizeof(struct NODE));
     if (!node) {
         fprintf(stderr, "Out of memory while creating node\n");
-        #error "test"
         exit(EXIT_FAILURE);
     }
     node->data = value;

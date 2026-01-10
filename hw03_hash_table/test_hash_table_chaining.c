@@ -11,16 +11,18 @@ int test_list(void) {
 void manual_tests(void) {
     hash_table* ht = ht_new();
 
-    // insert(&ht, "key1", 1);
-    // insert(&ht, "key2", 2);
-    // insert(&ht, "key3", 3);
+    for (int i = 0; i < 20; i++) {
+        char *key = malloc(20);
+        sprintf(key, "key%d", i);
+        insert(ht, key, 1);
+        free(key);
+    }
     //
     // printf("%d\n", search(&ht, "key1"));
     // printf("%d\n", search(&ht, "key2"));
     // printf("%d\n", search(&ht, "key3"));
 
-    float lf = load_factor(ht);
-    printf("load factor = %f\n", lf);
+    display_ht(ht);
 }
 
 
