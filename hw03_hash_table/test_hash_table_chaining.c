@@ -28,9 +28,36 @@ int test_ht(void) {
 }
 
 int test_text(void) {
-    // todo: read text, count words
+    char *in_file_p = "text.txt";
+    FILE *fp = fopen(in_file_p, "rb");
+    if (!fp) {
+        fprintf(stderr, "Can't open input file %s\n", in_file_p);
+        return EXIT_FAILURE;
+    }
 
-    return 0;
+    hash_table *ht = ht_new();
+    char word[100];
+    while (fscanf(fp, "%99s", word) == 1) {
+        // printf("%s\n", word);
+        const int count = search(ht, word);
+        if (count == -1) {
+            insert(ht, word, 1);
+        } else {
+            insert(ht, word, count + 1);
+        }
+    }
+    ASSERT_EQ(6, search(ht, "wisdom"));
+    ASSERT_EQ(3, search(ht, "river"));
+    ASSERT_EQ(1, search(ht, "lightning"));
+    ASSERT_EQ(2, search(ht, "snow"));
+    ASSERT_EQ(3, search(ht, "alpha"));
+
+    ASSERT_EQ(-1, search(ht, "unknown"));
+
+    fclose(fp);
+
+    display_ht(ht);
+    return EXIT_SUCCESS;
 }
 
 void manual_tests(void) {
