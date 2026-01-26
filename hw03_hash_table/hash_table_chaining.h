@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INITIAL_SIZE 10
+#define INITIAL_SIZE 13
 #define HT_PRIME 151
 
 // https://www.youtube.com/watch?v=kJSkeSMWybY&t=407s
@@ -21,6 +21,11 @@ typedef struct {
     ht_item **items;
 } hash_table;
 
+void insert(hash_table *ht, const char *key, int value);
+
+/**
+ * load_factor = Number of occupied slots / length of the hash table
+ */
 static float load_factor(hash_table *ht) {
     return (float) ht->count / ht->size;
 }
@@ -100,14 +105,60 @@ static int search(hash_table *ht, const char *key) {
     return item->value;
 }
 
-void resize_up(hash_table *ht) {
-    // todo: implement
+int is_prime(const int x) {
+    if (x < 2) { return -1; }
+    if (x < 4) { return 1; }
+    if ((x % 2) == 0) { return 0; }
+    for (int i = 3; i <= floor(sqrt((double) x)); i += 2) {
+        if ((x % i) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int next_prime(int x) {
+    while (is_prime(x) != 1) {
+        x++;
+    }
+    return x;
+}
+
+static void resize_up(hash_table *ht) {
+    printf("resize_up\n");
+    hash_table *new_ht = malloc(sizeof(hash_table));
+
+    int next_size = next_prime(ht->size * 2);
+    printf("current_size: %d, next_size: %d", ht->size, next_size);
+
+    new_ht->size = next_size;
+    new_ht->count = 0;
+    new_ht->items = calloc((size_t) ht->size, sizeof(ht_item *));
+
+    for (int i = 0; i < ht->size; i++) {
+        ht_item* item = ht->items[i];
+        while (item != NULL) {
+            insert(new_ht, item->key, item->value);
+            item = item->next;
+        }
+    }
+
+    const int tmp_size = ht->size;
+    ht->size = new_ht->size;
+    new_ht->size = tmp_size;
+
+    ht_item** tmp_items = ht->items;
+    ht->items = new_ht->items;
+    new_ht->items = tmp_items;
+
+    ht_del_hash_table(new_ht);
 }
 
 
-static void insert(hash_table *ht, const char *key, int value) {
+void insert(hash_table *ht, const char *key, int value) {
     const float load = load_factor(ht);
-    if (load > 0.7) {
+    // printf("load_factor: %f\n", load);
+    if (load > 3) {
         resize_up(ht);
     }
 

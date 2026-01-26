@@ -63,7 +63,7 @@ int test_text(void) {
 void manual_tests(void) {
     hash_table *ht = ht_new();
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 100; i++) {
         char *key = malloc(20);
         sprintf(key, "key%d", i);
         insert(ht, key, i);
